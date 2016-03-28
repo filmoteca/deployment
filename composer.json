@@ -1,0 +1,11 @@
+{
+    "name": "filmoteca/deployment",
+    "description": "Package to deploy the filmoteca project",
+    "authors": [
+        {
+            "name": "Victor Aguilar",
+            "email": "victor.aguilar@ciencias.unam.mx"
+        }
+    ],
+    "require": {}
+}
