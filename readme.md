@@ -13,14 +13,14 @@ que tenemos instalada en el sistema. Por ejemplo
 `ruby 2.0.3p484 (2013-11-22 revision 43786) [x86_64-linux]`
 
 Una vez que se tiene instalado ruby necesitamos instalar el manejador
-de dependencias de ruby **bundler** y la herramienta de deploy **capistrano**. 
+de dependencias de ruby **bundler**. 
 
 ```bash
-sudo gem install capistrano
 sudo gem install bundler
 ```
 
-Por último debemos de instalar las dependencias del proceso de deployment
+Por último debemos de instalar las dpendencias del proceso de deployment
+con el commando
 
 ```bash
 bundle
@@ -42,9 +42,9 @@ Para realizar un deployment de alguna versión de la aplicación se
 debe correr el siguiente commndo
 
 ```bash
-cap production deploy BRANCH=nombre_de_branch_o_tag
+bundle exec cap production deploy BRANCH=nombre_de_branch_o_tag
 ```
 
-cambiando `nombre_de_branch_o_tag`por el nombre del *branch* o *tag* 
+cambiando `nombre_de_branch_o_tag` por el nombre del *branch* o *tag* 
 del cual se desea hacer deployment. Por ejemplo `2.0.1` o `development`. 
 
