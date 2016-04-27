@@ -30,5 +30,12 @@ SSHKit.config.command_map[:composer] = "php #{shared_path.join("composer.phar")}
 
 namespace :deploy do
   after :starting, 'composer:install_executable'
-end
+  after :finishing, 'deploy:migrate'
 
+  desc "Deploys and runs migrations"
+  task :migrate do
+        on roles(:app) do
+            execute "php #{deploy_to}/current/artisan migrate"
+        end
+  end
+end
