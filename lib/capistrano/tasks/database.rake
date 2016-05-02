@@ -1,0 +1,12 @@
+# ==============================
+# Database
+# ==============================
+
+namespace :db do
+
+  task :migrate do 
+    on roles(:app) do 
+      execute "php #{release_path}/artisan migrate --env=prod"
+    end
+  end
+end
