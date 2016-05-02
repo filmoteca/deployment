@@ -5,8 +5,6 @@
 namespace :db do
 
   task :migrate do 
-    on roles(:app) do 
-      execute "php #{release_path}/artisan migrate --env=#{fetch(:stage)}"
-    end
+  	invoke "composer:run", "run-script", "migrate --no-dev --working-dir=#{fetch(:deploy_to)}/current"
   end
 end
