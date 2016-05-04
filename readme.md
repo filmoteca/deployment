@@ -1,5 +1,7 @@
 # Introducción
 
+Este almacen es parte del proyecto [filmoteca](https://github.com/filmoteca/filmoteca) y es requerido para realizar su despliege (*deployment* en inglés).
+
 # Requerimientos
 
 Para realizar el proceso de *deployment* se requiere tener instalado
@@ -19,32 +21,65 @@ de dependencias de ruby **bundler**.
 sudo gem install bundler
 ```
 
-Por último debemos de instalar las dpendencias del proceso de deployment
-con el commando
-
-```bash
-bundle
-```
-
 # Despliegue (deployment)
 
 ## Preparación
 
 Antes de poder desplegar la aplicación se deben copiar manualmente 
-a la carpeta **config/deploy/** los archivos `production.rb` y 
+a la directorio `config/deploy/` los archivos `prod.rb` y 
 `staging.rb`, los cuales contienen configuración especial para cada uno
 de los dos ambientes y no son versionados ya que podrían contener 
 información sensible.
 
-## Desplegando (deploying)
+El proceso de deployment es independiente del proyecto principal y por esto existen dos formas de utilizarlo. La primera, clonar éste almacen, entrar a la directorio creada por el proceso de clonado y usarlo. La otra opcion es entrar al directorio del proyecto principal e ir a `vendor/filmoteca/deployment` y usarlo.
 
-Para realizar un deployment de alguna versión de la aplicación se
-debe correr el siguiente commndo
+Las dos opciones se utilizan de la misma forma, pero en la segunda no se tiene que realizar el clonado de éste almacen, ya que al ser éste paquete una dependencia de desarollo es clonado automaticamente al directorio indicada arriba.
+
+Una vez elegido el método para usar este almacen debemos entra a su directorio e instalar sus dependencias con el commando
 
 ```bash
-bundle exec cap production deploy BRANCH=nombre_de_branch_o_tag
+bundle
 ```
 
-cambiando `nombre_de_branch_o_tag` por el nombre del *branch* o *tag* 
-del cual se desea hacer deployment. Por ejemplo `2.0.1` o `development`. 
+## Desplegando (deploying)
 
+En esta sección se mustra como utilizar éste almacen y se asume que te encuentras dentro de su directorio, ya sea usando la opcion 1 o 2.
+
+Para deplegar la aplicación en una versión especificase debe correr el siguiente commndo
+
+```bash
+bundle exec cap prod deploy BRANCH=nombre_de_branch_o_tag
+```
+
+cambiando `nombre_de_branch_o_tag` por el nombre del *branch* o *tag* del cual se desea hacer deployment. Por ejemplo `2.0.1` o `development`. 
+
+### Opcional
+
+El comando anterior es muy largo para usarlo constantemente. Así que se puede crear un *alias* para el. Para hacer esto se debe agregar la linea
+
+```bash
+alias cap="bundle exec cap"
+```
+Al archivo, `~/.bashrc` or `~/.zshrc` or `~/.profile` (Linux o Mac solamente). Para ver que archivo tenemos podemos correr el comando `ls ~/*rc.`
+
+## Funcionamiento
+
+El proceso de deployment creara una estructura de carpetas en el ambiente en el cual se hizo el deployment que se ven como esto
+
+```txt
+├── current -> /var/www/my_app_name/releases/20150120114500/
+├── releases
+│   ├── 20150120114500
+│   ├── 20150090083000
+│   ├── 20150100093500
+└── shared
+    └── uploads
+    └── resources
+    └── logs
+```
+
+En el directorio **shared** se guardan archivos que son compartidos entre liberaciones, es decir aquellos archivos que permanecen constantes entre liberación y liberación. Un ejemplo de ellos, son los archivos que sube un usuario a través de la admin zone. Luego **releases** (liberaciones en espeñol) tiene una lista de liberaciones (a lo más 3) y en su interior se encuentra un proyecto *filmoteca* completamente funcional y con correspondiente estructura de directorios. Por último, el directorio más importante: **current** (actual en español). Este directorio es enlace simbólico (un accesso directo) a una liberación. Es donde el servidor web buscara la applicación.
+
+Esta estructura de directorios nos da seguridad y precisión al realizar una liberación. Ya que si algo falla mientras se esta deplegando la aplicación, por ejemplo, no se puedierón subir los assets, el enlace simbólico no actualizara y el servidor web, y por lo tanto el usuario del sitio, no veran ningún cambio. El enlace simbólico solo se actualizará si todo el proceso de deployment fue exitoso. Además nos permite regresar a una versión anterior si algo realmente no funciona para nada bien. A éste proceso se le conoce como **rollback** y es el último recurso para cuando algo fue mal.
+
+La mayoría de los servidores web apuntan a la carpeta `ruta_al_proyecto/htdocs` entonces para no cambiar la configuración del servidor se crea, manualmente, un enlace simbólico de `ruta_al_proyecto/current/htdocs` a `ruta_al_proyecto/htdocs`. Por lo tanto, si se desea cambiar o mirar archivos de la liberación actual se debe entrar al directorio `ruta_al_proyecto/current/htdocs`
