@@ -21,6 +21,8 @@ de dependencias de ruby **bundler**.
 sudo gem install bundler
 ```
 
+Además la vagrant debe estar *up* ya se tiene que construir (build en inglés) algunos assets, por ejemplo, las fuentes de letras y las hojas de estilos.
+
 # Despliegue (deployment)
 
 ## Preparación
