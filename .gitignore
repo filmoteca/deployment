@@ -40,5 +40,5 @@ build/
 Gemfile.lock
 
 /vendor/
-/config/deploy/production.rb
+/config/deploy/prod.rb
 /config/deploy/staging.rb
