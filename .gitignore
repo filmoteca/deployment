@@ -11,6 +11,8 @@
 /tmp/
 /.idea
 /log
+.sass-cache/
+
 
 ## Specific to RubyMotion:
 .dat*
