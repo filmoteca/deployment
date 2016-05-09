@@ -1,5 +1,5 @@
 set :application, "filmoteca"
-set :repo_url,  "git@github.com:filmoteca/filmoteca.git"
+set :repo_url,  "https://github.com/filmoteca/filmoteca.git"
 set :scm, :git
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
@@ -23,25 +23,48 @@ Rake::Task['deploy:updated'].prerequisites.delete('composer:install')
 SSHKit.config.command_map[:composer] = -> { "LARAVEL_ENV=#{fetch(:stage)} php #{shared_path.join("composer.phar")}" }
 
 namespace :deploy do
-  after 	:starting, 		"composer:install_executable"
-  before 	:publishing, 	"composer:install"
-  before 	:publishing, 	"parameters:update"
+  after   :starting,    "composer:install_executable"
+  before  :publishing,  "deploy:assets:upload"
+  before  :publishing,  "composer:install"
+  before  :publishing,  "parameters:update"
 
   desc "Runs migrations"
   task :with_migrations do
     on roles(:app) do
-    	after 	"parameters:update", "db:migrate"
-    	invoke "deploy"
+      after   "parameters:update", "db:migrate"
+      invoke "deploy"
+    end
+  end
+
+  namespace :assets do 
+
+    desc "Builds the assets in vagrant and copy them to local directory"
+    task :build do 
+      run_locally do
+        execute("rm -Rf tmp#{release_path}")
+        execute("git clone #{fetch(:repo_url)} tmp#{release_path} -b #{fetch(:branch)}")
+        execute("cd tmp#{release_path} && bower install")
+        execute("sass --update --force tmp#{release_path}/htdocs/assets/sass:tmp#{release_path}/htdocs/assets/css")
+        execute("tar -cf assets.tar tmp#{release_path}/htdocs/assets/sass tmp#{release_path}/bower_components")
+      end
+    end
+
+    desc "Copies the built assets to the stage"
+    task :upload => [:build] do
+      on roles(:app) do
+        upload!("/tmp/assets.tar", "#{release_path}")
+        execute "cd #{release_path}tar -xf assets.tar"
+      end
     end
   end
 end
 
 namespace :parameters do
 
-	desc "Copy the parameters of stage the current release"
-	task :update do
-		on roles(:app) do
-			execute "cp -R #{release_path}/../../app/config/#{fetch(:stage)} #{release_path}/app/config/"
-		end
-	end
+  desc "Copy the parameters of stage the current release"
+  task :update do
+    on roles(:app) do
+      execute "cp -R #{release_path}/../../app/config/#{fetch(:stage)} #{release_path}/app/config/"
+    end
+  end
 end
