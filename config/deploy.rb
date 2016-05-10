@@ -46,14 +46,15 @@ namespace :deploy do
         execute("cd tmp#{release_path} && bower install")
         execute("sass --update --force tmp#{release_path}/htdocs/assets/sass:tmp#{release_path}/htdocs/assets/css")
         execute("tar -cf tmp/assets.tar tmp#{release_path}/htdocs/assets/css tmp#{release_path}/htdocs/bower_components")
+        execute("gzip tmp/assets.tar")
       end
     end
 
     desc "Copies the built assets to the stage"
     task :upload => [:build] do
       on roles(:app) do
-        upload!("tmp/assets.tar", "#{release_path}")
-        execute "cd #{release_path}tar -xf assets.tar"
+        upload!("tmp/assets.tar.gz", "#{release_path}")
+        execute("cd #{release_path} && gunzip assets.tar.gz && tar -xf assets.tar")
       end
     end
   end
