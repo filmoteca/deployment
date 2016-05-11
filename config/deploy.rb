@@ -4,6 +4,7 @@ set :scm, :git
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
 set :uploads_dirs, %w(uploads resources)
+set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions}
 
 # Example of invocation:
 # cap production deploy BRANCH=2.0.1
@@ -38,22 +39,23 @@ namespace :deploy do
 
   namespace :assets do 
 
-    desc "Builds the assets in vagrant and copy them to local directory"
+    desc "Builds the assets and copy them to local directory"
     task :build do 
       run_locally do
-        execute("rm -Rf tmp#{release_path}")
+        execute("rm -Rf tmp")
         execute("git clone #{fetch(:repo_url)} tmp#{release_path} -b #{fetch(:branch)}")
         execute("cd tmp#{release_path} && bower install")
         execute("sass --update --force tmp#{release_path}/htdocs/assets/sass:tmp#{release_path}/htdocs/assets/css")
-        execute("tar -cf tmp/assets.tar tmp#{release_path}/htdocs/assets/css tmp#{release_path}/htdocs/bower_components")
-        execute("gzip tmp/assets.tar")
+        execute("cd tmp#{release_path} && tar -cf assets.tar htdocs/assets/css htdocs/bower_components")
+        execute("gzip tmp#{release_path}/assets.tar")
       end
     end
 
     desc "Copies the built assets to the stage"
     task :upload => [:build] do
       on roles(:app) do
-        upload!("tmp/assets.tar.gz", "#{release_path}")
+        upload!("tmp#{release_path}/assets.tar.gz", "#{release_path}")
+        execute("rm -rf #{release_path}/assets.tar")
         execute("cd #{release_path} && gunzip assets.tar.gz && tar -xf assets.tar")
       end
     end
