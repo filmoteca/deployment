@@ -18,7 +18,7 @@ Rake::Task['deploy:updated'].prerequisites.delete('composer:install')
 # A lambda function is required to set the correct value outside a task because the variables 
 # (in this case shared_path) will have got the correct value after a command start. Otherwise
 # the default or an empty value of the variable is get.
-SSHKit.config.command_map[:composer] = -> { "LARAVEL_ENV=#{fetch(:stage)} php #{shared_path.join("composer.phar")}" }
+SSHKit.config.command_map[:composer] = -> { "LARAVEL_ENV=#{fetch(:stage)} #{fetch(:php)} #{shared_path.join("composer.phar")}" }
 
 namespace :deploy do
   after   :starting,      "composer:install_executable"
