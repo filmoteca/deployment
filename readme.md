@@ -8,7 +8,7 @@ Para realizar el proceso de *deployment* se requiere tener instalado
 
 * **ruby** `2.*`
 * bundler. El manejador de depencencias de ruby
-* sass y bower. Requeridos para trabajar con los *assets* del proyecto filmoteca.
+* bower. Requeridos para trabajar con los *assets* del proyecto filmoteca.
 
 **TODO**: agregar instrucciones para instalar ruby
  
