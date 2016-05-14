@@ -3,8 +3,7 @@ set :repo_url,  "https://github.com/filmoteca/filmoteca.git"
 set :scm, :git
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
-set :uploads_dirs, %w(uploads resources)
-set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions}
+set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions app/htdocs/resources app/htdocs/uploads}
 
 # Example of invocation:
 # cap production deploy BRANCH=2.0.1
@@ -12,9 +11,7 @@ set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sess
 set :branch, ENV['BRANCH'] if ENV['BRANCH']
 
 # if you want to clean up old releases on each deploy uncomment this:
-after "deploy:restart", "deploy:cleanup"
-after "deploy:check:directories", "uploads:check:directories"
-after "deploy:symlink:release", "uploads:symlink"
+after "deploy:restart",           "deploy:cleanup"
 
 Rake::Task['deploy:updated'].prerequisites.delete('composer:install')
 
@@ -24,39 +21,41 @@ Rake::Task['deploy:updated'].prerequisites.delete('composer:install')
 SSHKit.config.command_map[:composer] = -> { "LARAVEL_ENV=#{fetch(:stage)} php #{shared_path.join("composer.phar")}" }
 
 namespace :deploy do
-  after   :starting,    "composer:install_executable"
-  before  :publishing,  "deploy:assets:upload"
-  before  :publishing,  "composer:install"
-  before  :publishing,  "parameters:update"
-
-  desc "Runs migrations"
-  task :with_migrations do
-    on roles(:app) do
-      after   "parameters:update", "db:migrate"
-      invoke "deploy"
-    end
-  end
+  after   :starting,      "composer:install_executable"
+  before  :publishing,    "composer:install"
+  before  :publishing,    "deploy:assets:upload"
+  before  :publishing,    "parameters:update"
+  after   :publishing,    "db:migrate"
 
   namespace :assets do 
 
     desc "Builds the assets and copy them to local directory"
     task :build do 
       run_locally do
-        execute("rm -Rf tmp")
-        execute("git clone #{fetch(:repo_url)} tmp#{release_path} -b #{fetch(:branch)}")
-        execute("cd tmp#{release_path} && bower install")
-        execute("sass --update --force tmp#{release_path}/htdocs/assets/sass:tmp#{release_path}/htdocs/assets/css")
-        execute("cd tmp#{release_path} && tar -cf assets.tar htdocs/assets/css htdocs/bower_components")
-        execute("gzip tmp#{release_path}/assets.tar")
+        execute "rm -Rf tmp"
+        execute "git clone #{fetch(:repo_url)} tmp#{release_path} -b #{fetch(:branch)}"
+        execute "cd tmp#{release_path} && bower install"
+        execute "sass --update --force tmp#{release_path}/htdocs/assets/sass:tmp#{release_path}/htdocs/assets/css"
+        execute "cd tmp#{release_path} && tar -cf assets.tar htdocs/assets/css htdocs/bower_components"
+        execute "gzip tmp#{release_path}/assets.tar"
       end
     end
 
     desc "Copies the built assets to the stage"
-    task :upload => [:build] do
+    task :upload => [:publish_packages, :build] do
       on roles(:app) do
         upload!("tmp#{release_path}/assets.tar.gz", "#{release_path}")
-        execute("rm -rf #{release_path}/assets.tar")
-        execute("cd #{release_path} && gunzip assets.tar.gz && tar -xf assets.tar")
+        execute "rm -rf #{release_path}/assets.tar"
+        execute "cd #{release_path} && gunzip assets.tar.gz && tar -xf assets.tar"
+      end
+    end
+
+    desc "Publish the assets of other packages"
+    task :publish_packages do
+      on roles(:app) do
+        puts "Publishing assets of the packages"
+        Rake::Task["composer:run"].reenable
+        invoke "composer:run", "run-script", "publish-assets --no-dev --working-dir=#{fetch(:release_path)}"
       end
     end
   end
