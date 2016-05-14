@@ -5,49 +5,43 @@ Este almacén es parte del proyecto [filmoteca](https://github.com/filmoteca/fil
 # Requerimientos
 
 Para realizar el proceso de *deployment* se requiere tener instalado
-**ruby** `2.*.*`.
+
+* **ruby** `2.*`
+* bundler. El manejador de depencencias de ruby
+* sass y bower. Requeridos para trabajar con los *assets* del proyecto filmoteca.
 
 **TODO**: agregar instrucciones para instalar ruby
  
-Para probar que se tiene la versión correcta de ruby se puede correr
-el comando `ruby --version` el cual debera mostrar la versión de ruby
-que tenemos instalada en el sistema. Por ejemplo 
-`ruby 2.0.3p484 (2013-11-22 revision 43786) [x86_64-linux]`
+Se puede ver la versión de ruby instalada en el sistema con el comando `ruby --version`. Un ejemplo de la salida del comando podría ser `ruby 2.0.3p484 (2013-11-22 revision 43786) [x86_64-linux]`
 
-Una vez que se tiene instalado ruby necesitamos instalar el manejador
-de dependencias de ruby **bundler**. 
+Bundler puede ser instalado con el comando
 
 ```bash
 sudo gem install bundler
 ```
 
-Además la vagrant debe estar *up* ya que se tienen que construir (build en inglés) algunos assets, por ejemplo, las fuentes de letras y las hojas de estilos.
-
 # Despliegue (deployment)
 
 ## Preparación
 
-Antes de poder desplegar la aplicación se deben copiar manualmente 
-al directorio `config/deploy/` los archivos `prod.rb` y 
-`staging.rb`, los cuales contienen configuración especial para cada uno
-de los dos ambientes y no son versionados ya que podrían contener 
-información sensible.
+El proceso de deployment es independiente del proyecto filmoteca así que hay dos formas de usarlo. La primera opcion es
+clonar éste almacen y entrar al directorio creado por el proceso de clonado. La segunda opcion es entrar al directorio `vendor/filmoteca/deployment` la cual contiene el clone de este proyecto.
 
-El proceso de deployment es independiente del proyecto principal y por esto existen dos formas de utilizarlo.
-La primera, clonar éste almacen, entrar al directorio creado por el proceso de clonado y usarlo. 
-La segunda opción es entrar al directorio del proyecto principal e ir a `vendor/filmoteca/deployment` y usarlo.
+A partir de este punto se asume que te encuentras en el directorio de este proyecto.
 
-Las dos opciones anteriores se utilizan de la misma forma, pero en la segunda no se tiene que realizar el clonado de éste almacen, ya que al ser este paquete una dependencia de desarrollo es clonado automaticamente al directorio indicado arriba.
+## Instalación de dependencias
 
-Una vez elegido el método para usar este almacén debemos entrar a su directorio e instalar sus dependencias con el comando
+Para instalar todas las dependencias de proyecto basta correr
 
 ```bash
 bundle
 ```
 
-## Desplegando (deploying)
+## Archivos de configuración
 
-En esta sección se muestra cómo utilizar éste almacén y se asume que te encuentras dentro de su directorio, ya sea usando la opción 1 o 2.
+En el directorio `config/deploy` se deben de guardar los archivos de configuración de los servidores. Estos archivos no son versionados, es decir, no los encontraras en este repository, ya que contienen información sensible como contraseñas de los servidores. Entonces una vez que se tengas estos los archivos `prod.rb` y `staging.rb` (para producción y pruebas respectivamente) se deberan copiar al directorio `config/deploy`.
+
+## Desplegando (deploying)
 
 Para deplegar la aplicación en una versión especifica se debe correr el siguiente comando
 
@@ -64,6 +58,7 @@ El comando anterior es muy largo para usarlo constantemente. Así que se puede c
 ```bash
 alias cap="bundle exec cap"
 ```
+
 Al archivo, `~/.bashrc` or `~/.zshrc` or `~/.profile` (Linux o Mac solamente). Para ver qué archivo tenemos podemos correr el comando `ls ~/*rc.`
 
 ## Funcionamiento
@@ -87,3 +82,5 @@ En el directorio **shared** se guardan archivos que son compartidos entre libera
 Esta estructura de directorios nos da seguridad y precisión al realizar una liberación. Ya que si algo falla mientras se esta deplegando la aplicación, por ejemplo, no se puedieron subir los assets, el enlace simbólico no actualizará y el servidor web, y por lo tanto el usuario del sitio, no verá ningún cambio. El enlace simbólico solo se actualizará si todo el proceso de deployment fue exitoso. Además nos permite regresar a una versión anterior si algo realmente no funciona para nada bien. A éste proceso se le conoce como **rollback** y es el último recurso para cuando algo fue mal.
 
 La mayoría de los servidores web apuntan a la carpeta `ruta_al_proyecto/htdocs` entonces para no cambiar la configuración del servidor se crea, manualmente, un enlace simbólico de `ruta_al_proyecto/current/htdocs` a `ruta_al_proyecto/htdocs`. Por lo tanto, si se desea cambiar o mirar archivos de la liberación actual se debe entrar al directorio `ruta_al_proyecto/current/htdocs`
+
+Además de esto, el proceso de deploment correra *migrations*, descargara composer e instalara las dependencias de proyecto en el servidor indicado, así como la preparación y subidad de los assets.
