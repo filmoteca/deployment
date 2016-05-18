@@ -1,5 +1,5 @@
 set :application, "filmoteca"
-set :repo_url,  "https://github.com/filmoteca/filmoteca.git"
+set :repo_url,  "git@github.com:filmoteca/filmoteca.git"
 set :scm, :git
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'

@@ -12,6 +12,7 @@
 /.idea
 /log
 .sass-cache/
+*.zip
 
 
 ## Specific to RubyMotion:
