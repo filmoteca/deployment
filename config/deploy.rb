@@ -61,6 +61,19 @@ namespace :deploy do
             end
         end
     end
+
+    desc "Remove the linked directories so its content is not removed when a release is deleted"
+    task :remove_linked_dirs do
+        on roles(:app) do
+            oldest_release = capture(:ls, "-xtr", releases_path).split.first
+            older_release_path = "#{releases_path}/#{oldest_release}"
+            fetch(:linked_dirs).map do |d| 
+                if test("[ -f #{older_release_path}/#{d} ]")
+                    execute "rm #{older_release_path}/#{d}"
+                end
+            end
+        end
+    end
 end
 
 namespace :parameters do
