@@ -4,7 +4,7 @@ set :scm, :git
 set :user, 'www-data'
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
-set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions app/htdocs/resources app/htdocs/uploads}
+set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions htdocs/resources htdocs/uploads}
 
 # Example of invocation:
 # cap production deploy BRANCH=2.0.1
@@ -68,7 +68,8 @@ namespace :deploy do
             oldest_release = capture(:ls, "-xtr", releases_path).split.first
             older_release_path = "#{releases_path}/#{oldest_release}"
             fetch(:linked_dirs).map do |d| 
-                if test("[ -f #{older_release_path}/#{d} ]")
+                if File.exists?("#{older_release_path}/#{d}")
+                    puts "Removing #{older_release_path}/#{d}"
                     execute "rm #{older_release_path}/#{d}"
                 end
             end
