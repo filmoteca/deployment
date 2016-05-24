@@ -4,7 +4,7 @@ set :scm, :git
 set :user, 'www-data'
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
-set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions htdocs/resources htdocs/uploads}
+set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions htdocs/resources htdocs/uploads htdocs/micro-sitios htdocs/cinelinea htdocs/MUVAC htdocs/mirada}
 
 # Example of invocation:
 # cap production deploy BRANCH=2.0.1
