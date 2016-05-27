@@ -1,7 +1,7 @@
 set :application, "filmoteca"
 set :repo_url,  "git@github.com:filmoteca/filmoteca.git"
 set :scm, :git
-set :user, 'www-data'
+set :user, 'filmoteca'
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
 set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions htdocs/resources htdocs/uploads htdocs/micro-sitios htdocs/cinelinea htdocs/MUVAC htdocs/mirada}
