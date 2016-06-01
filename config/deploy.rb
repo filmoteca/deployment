@@ -5,6 +5,7 @@ set :user, 'www-data'
 set :keep_releases, 3
 set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
 set :linked_dirs, fetch(:linked_dirs, []) + %w{app/storage/logs app/storage/sessions htdocs/resources htdocs/uploads htdocs/micro-sitios htdocs/cinelinea htdocs/MUVAC htdocs/mirada}
+set :php, '/usr/local/php/bin/php'
 
 # Example of invocation:
 # cap production deploy BRANCH=2.0.1
@@ -71,6 +72,22 @@ namespace :deploy do
                 if File.exists?("#{older_release_path}/#{d}")
                     puts "Removing #{older_release_path}/#{d}"
                     execute "rm #{older_release_path}/#{d}"
+                end
+            end
+        end
+    end
+end
+
+namespace :composer do
+
+    Rake::Task["install_executable"].clear_actions
+    task :install_executable do
+        on release_roles(fetch(:composer_roles)) do
+            within shared_path do
+                unless test "[", "-e", "composer.phar", "]"
+                    composer_version = fetch(:composer_version, nil)
+                    composer_version_option = composer_version ? "-- --version=#{composer_version}" : ""
+                    execute :curl, "-s", fetch(:composer_download_url), "|", fetch(:php), composer_version_option
                 end
             end
         end
