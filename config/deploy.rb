@@ -26,7 +26,7 @@ namespace :deploy do
     after   :starting,      "composer:install_executable"
     before  :publishing,    "composer:install"
     before  :publishing,    "deploy:assets:upload"
-    before  :publishing,    "parameters:update"
+    before  :updated,       "parameters:update"
     after   :publishing,    "db:migrate"
     before  :cleanup,       "deploy:remove_linked_dirs"
 
