@@ -1,16 +1,15 @@
 set :application, "filmoteca"
 set :repo_url,  "git@github.com:filmoteca/filmoteca.git"
 set :keep_releases, 2
-set :composer_install_flags, '--no-dev --no-interaction --quiet --optimize-autoloader --no-scripts'
+set :composer_install_flags, '--no-interaction --quiet --optimize-autoloader --no-scripts'
 set :linked_dirs, [
     'app/storage/logs',
     'app/storage/sessions',
-    'htdocs/resources',
-    'htdocs/uploads',
-    'htdocs/micro-sitios',
-    'htdocs/cinelinea',
-    'htdocs/MUVAC',
     'htdocs/mirada',
+    'htdocs/MUVAC',
+    'htdocs/cinelinea',
+    'htdocs/resources',
+    'htdocs/uploads'
 ]
 
 # Example of invocation:
@@ -32,6 +31,7 @@ namespace :deploy do
     after   :starting,      "composer:install_executable"
     before  :publishing,    "composer:install"
     before  :publishing,    "deploy:assets:upload"
+    before  :publishing,    "deploy:set_permissions"
     after   :publishing,    "db:migrate"
 
     namespace :assets do
@@ -72,6 +72,8 @@ namespace :deploy do
             directories = [
                 'app/storage/logs',
                 'app/storage/sessions',
+                'app/storage/views',
+                'app/storage/cache',
                 'htdocs/resources',
                 'htdocs/uploads'
             ]
