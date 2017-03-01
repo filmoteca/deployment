@@ -79,7 +79,7 @@ namespace :deploy do
             ]
 
             directories.each do |directory|
-                execute :sudo, :chown, "www-data:www-data -R #{fetch(:deploy_to)}/current/#{directory}"
+                execute :sudo, :chown, "www-data:#{fetch(:ssh_user)} -R #{fetch(:release_path)}/#{directory}"
             end
         end
     end
