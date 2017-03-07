@@ -33,6 +33,7 @@ namespace :deploy do
     before  :publishing,    "deploy:assets:upload"
     before  :publishing,    "deploy:set_permissions"
     after   :publishing,    "db:migrate"
+    before  :cleanup,       "deploy:set_permissions"
 
     namespace :assets do
 
