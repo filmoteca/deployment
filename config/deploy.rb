@@ -9,7 +9,9 @@ set :linked_dirs, [
     'htdocs/MUVAC',
     'htdocs/cinelinea',
     'htdocs/resources',
-    'htdocs/uploads'
+    'htdocs/uploads',
+    'htdocs/pdf',
+    'htdocs/imgs'
 ]
 
 # Example of invocation:
@@ -76,7 +78,9 @@ namespace :deploy do
                 'app/storage/views',
                 'app/storage/cache',
                 'htdocs/resources',
-                'htdocs/uploads'
+                'htdocs/uploads',
+                'htdocs/imgs',
+                'htdocs/pdfs'
             ]
 
             directories.each do |directory|
