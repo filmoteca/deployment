@@ -14,6 +14,10 @@ set :linked_dirs, [
     'htdocs/imgs'
 ]
 
+## Uncomment to debug
+# set :format, :pretty
+# set :log_level, :debug
+
 # Example of invocation:
 # cap production deploy BRANCH=2.0.1
 #
@@ -80,7 +84,7 @@ namespace :deploy do
                 'htdocs/resources',
                 'htdocs/uploads',
                 'htdocs/imgs',
-                'htdocs/pdfs'
+                'htdocs/pdf'
             ]
 
             directories.each do |directory|
